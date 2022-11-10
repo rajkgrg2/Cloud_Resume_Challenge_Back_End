@@ -1,0 +1,41 @@
+name: master
+on: push
+jobs:
+  test-infra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          cd tests/unit
+          pip install boto3
+          find . -regex '.*requirements.txt$'
+          python -m pip install --upgrade pip
+          pip freeze > requirements.txt
+          pip install -r requirements.txt
+          python -m pip install pytest
+      - name: Run tests with pytest
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: pytest
+
+  build-and-deploy-infra:
+    needs: test-infra
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: aws-actions/setup-sam@v1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - run: cd backend-challenge && sam build --use-container
+      - run: cd backend-challenge && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+      - name: Update static files with S3
+        run: aws s3 cp static/. s3://aws-sam-cli-managed-default-samclisourcebucket-1sim7geg4nbtk/ --recursive  
