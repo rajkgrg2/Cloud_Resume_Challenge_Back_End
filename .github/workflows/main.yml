@@ -1,5 +1,5 @@
 name: master
-on: push
+#on: push
 jobs:
   test-infra:
     runs-on: ubuntu-latest
