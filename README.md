@@ -1,5 +1,13 @@
 # resume-app
 
+- Used SAM CLI as IaC to configure backend aws services.
+- Lambda function with python code to insert, save and retrieve visitor numbers in DynamoDB.
+- Used API Gateway to implement API endpoints.
+- Used github actions for CI/CD pipeline.
+- Full Application Architecture Diagram.
+
+![backend](https://user-images.githubusercontent.com/7123198/199879632-6921c837-0377-4d90-9e60-9079ee78d24a.png)
+
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
 - hello_world - Code for the application's Lambda function.
