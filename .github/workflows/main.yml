@@ -28,14 +28,27 @@ jobs:
     needs: test-infra
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - uses: aws-actions/setup-sam@v1
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - run: cd backend-challenge && sam build --use-container
-      - run: cd backend-challenge && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
-      - name: Update static files with S3
-        run: aws s3 cp static/. s3://aws-sam-cli-managed-default-samclisourcebucket-1sim7geg4nbtk/ --recursive  
+      - run: sam build
+        working-directory: Cloud_Resume_Challenge_Back_End
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+        working-directory: Cloud_Resume_Challenge_Back_End
+
+  deploy-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --delete
+        env:
+          AWS_S3_BUCKET: cloud-resume-challenge/
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SOURCE_DIR: Cloud_Resume_Challenge_Back_End/backend
