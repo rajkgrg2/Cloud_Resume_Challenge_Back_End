@@ -3,6 +3,7 @@ import re
 import json
 import unittest
 from unittest import mock
+from ..backend import app
 
 import sys
 import os.path
